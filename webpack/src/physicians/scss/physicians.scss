@@ -1,0 +1,31 @@
+@use '../scss/custom-specialty-dropdown.scss';
+
+.expert-section-heading {
+    color: #717171 !important;
+    font-size: 20px !important;
+    font-weight: 600 !important;
+    line-height: 1.3 !important;
+    margin-bottom: 12px !important;
+    margin-top: 0px !important;
+    text-transform: none !important;
+  }
+
+
+  .expert-grid {
+    margin-bottom: clamp(24px, 4vw, 60px) !important;
+  }
+  
+  .expert-card:last-child {
+    margin-bottom: 0 !important;
+  }
+  
+
+  h2.physician-subtitle {
+    font-size: 20px !important;
+    font-weight: 300;
+    color: rgb(113, 113, 113);
+    max-width: 640px;
+    line-height: 1.75;
+    text-transform: none;
+    margin-bottom: 20px;
+}

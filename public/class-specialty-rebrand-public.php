@@ -80,8 +80,8 @@ class Specialty_Rebrand_Public {
 		 * class.
 		 */
 
-		if ( is_page( 68 ) ) {
-			wp_enqueue_style( $this->plugin_name . '-physicians', $this->physicians_css, array(), $this->version, 'all' );
+		if (is_page(68) || is_singular('specialty')) {
+			wp_enqueue_style($this->plugin_name . '-physicians', $this->physicians_css, array(), $this->version, 'all');
 		}
 
 		if ( is_page( 'specialties-admin' ) ) {
@@ -103,13 +103,13 @@ class Specialty_Rebrand_Public {
 		 * An instance of this class should be passed to the run() function
 		 * defined in Specialty_Rebrand_Loader as all of the hooks are defined
 		 * in that particular class.
-		 *
+		 * 
 		 * The Specialty_Rebrand_Loader will then create the relationship
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
 
-		if ( is_page( 68 ) ) {
+		if ( is_page( 68 )  || is_singular( 'specialty' ) ) {
 			wp_enqueue_script( $this->plugin_name . '-physicians', $this->physicians_js, array( 'jquery' ), $this->version, true );
 		}
 

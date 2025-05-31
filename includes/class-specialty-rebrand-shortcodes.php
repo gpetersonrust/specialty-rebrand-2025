@@ -23,8 +23,7 @@ class Specialty_Rebrand_Shortcodes {
     public function register_shortcodes() {
         $shortcodes = array(
             'physician-sub-specialty',
-            'another-shortcode',
-            'some-custom-view',
+             'koc-ortho-subspecialty',
         );
 
         foreach ($shortcodes as $tag) {

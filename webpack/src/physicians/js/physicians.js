@@ -10,9 +10,9 @@ document.addEventListener('DOMContentLoaded', function () {
     '.expert-filter-container'  // The class of the div containing your custom dropdown
   );
   
-  const{ labels, elements: {trigger: triggerButton} }  = specialtyDropdown;
-  const expertFilterUI = new ExpertFilterUI({
-    labels,
-    triggerButton,
-    });
+//   const{ labels, elements: {trigger: triggerButton} }  = specialtyDropdown;
+//   const expertFilterUI = new ExpertFilterUI({
+//     labels,
+//     triggerButton,
+//     });
   });

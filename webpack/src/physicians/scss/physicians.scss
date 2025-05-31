@@ -29,3 +29,29 @@
     text-transform: none;
     margin-bottom: 20px;
 }
+
+
+
+ 
+.subspecialty-filters {
+    display: flex
+;
+    flex-wrap: wrap;
+    margin: 12px 0 40px;
+    justify-content: center;
+}
+
+button.subspecialty-filter-button {
+    background: #236194;
+    color: #fff;
+    font-size: 18px;
+    padding: 0.35em 1.75em;
+    margin: .5rem;
+    transition: .3s all linear;
+    border-radius: 5px;
+    min-width: 15%;
+}
+
+button.subspecialty-filter-button.active, button.subspecialty-filter-button:hover {
+    background: #56a554;
+}

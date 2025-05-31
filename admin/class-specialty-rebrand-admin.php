@@ -51,6 +51,11 @@ class Specialty_Rebrand_Admin {
 
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
+		$this->dynamic_hash = $this->dynamic_hash();
+		$specialty_rebrand_dir = SPECIALTY_REBRAND_URL . 'dist/speciality-rebrand-admin';
+	 
+		$this->specialty_rebrand_admin_css = $specialty_rebrand_dir . '/speciality-rebrand-admin' . $this->dynamic_hash . '.css';
+		$this->specialty_rebrand_admin_js = $specialty_rebrand_dir . '/speciality-rebrand-admin' . $this->dynamic_hash . '.js';
 
 	}
 
@@ -73,7 +78,7 @@ class Specialty_Rebrand_Admin {
 		 * class.
 		 */
 
-		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/specialty-rebrand-admin.css', array(), $this->version, 'all' );
+		wp_enqueue_style( $this->plugin_name, $this->specialty_rebrand_admin_css, array(), $this->version, 'all' );
 
 	}
 
@@ -96,8 +101,35 @@ class Specialty_Rebrand_Admin {
 		 * class.
 		 */
 
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/specialty-rebrand-admin.js', array( 'jquery' ), $this->version, false );
+		wp_enqueue_script( $this->plugin_name, $this->specialty_rebrand_admin_js, array( 'jquery' ), $this->version, true );
 
+		wp_localize_script(
+			$this->plugin_name,
+			'specialtyRebrandData',
+			array(
+				'siteUrl' => site_url(),
+				'restUrl' => rest_url(),
+				'nonce'   => wp_create_nonce('wp_rest')
+			)
+		);
+
+	}
+
+	function dynamic_hash() {
+		$directory_path = plugin_dir_path(dirname(__FILE__, 1)) . 'dist/app/';
+		$files = scandir($directory_path);
+		$first_file = '';
+		foreach ($files as $file) {
+			if (!is_dir($directory_path . $file)) {
+				$first_file = $file;
+				break;
+			}
+		}
+		$hash_parts = explode('-wp', $first_file);
+		$hash = isset($hash_parts[1]) ? $hash_parts[1] : '';
+		$hash_parts = explode('.', $hash);
+		$hash = isset($hash_parts[0]) ? $hash_parts[0] : '';
+		return '-wp' . $hash;
 	}
 
 }

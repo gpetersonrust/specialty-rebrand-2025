@@ -131,43 +131,43 @@ class SpecialtyDropdown {
         </svg>`;
 
       labelWrapper.appendChild(labelSpan);
-      labelWrapper.appendChild(arrowSpan);
+      // labelWrapper.appendChild(arrowSpan);
       parentLi.appendChild(labelWrapper);
 
       this.labels[parentSlug] = parentLabel; // Store the label for later use
 
-      const childMenu = parentItem.querySelector(':scope > .sub-menu');
-      if (childMenu) {
-        const subListUl = document.createElement('ul');
-        subListUl.className = 'subspecialty-list';
+      // const childMenu = parentItem.querySelector(':scope > .sub-menu');
+      // if (childMenu) {
+      //   const subListUl = document.createElement('ul');
+      //   subListUl.className = 'subspecialty-list';
 
-        childMenu.querySelectorAll(':scope > li.menu-item').forEach(childItem => {
-          const childAnchor = childItem.querySelector(':scope > a');
-          const childLabel = childAnchor?.querySelector('.x-anchor-text-primary')?.textContent.trim();
-          const childHref = childAnchor?.getAttribute('href');
-          const childSlug = this.getSpecialtyFromHref(childHref);
+      //   childMenu.querySelectorAll(':scope > li.menu-item').forEach(childItem => {
+      //     const childAnchor = childItem.querySelector(':scope > a');
+      //     const childLabel = childAnchor?.querySelector('.x-anchor-text-primary')?.textContent.trim();
+      //     const childHref = childAnchor?.getAttribute('href');
+      //     const childSlug = this.getSpecialtyFromHref(childHref);
 
-          this.labels[childSlug] = childLabel; // Store the label for later use
+      //     this.labels[childSlug] = childLabel; // Store the label for later use
 
-          if (childLabel && childSlug) {
-            const childLi = document.createElement('li');
-            childLi.className = `subspecialty-option ${childSlug}`;
-            childLi.setAttribute('data-filter', `.${childSlug}`);
-            childLi.textContent = childLabel;
-            subListUl.appendChild(childLi);
-          }
-        });
+      //     if (childLabel && childSlug) {
+      //       const childLi = document.createElement('li');
+      //       childLi.className = `subspecialty-option ${childSlug}`;
+      //       childLi.setAttribute('data-filter', `.${childSlug}`);
+      //       childLi.textContent = childLabel;
+      //       subListUl.appendChild(childLi);
+      //     }
+      //   });
 
-        if (subListUl.childNodes.length > 0) {
-          parentLi.appendChild(subListUl);
-        } else {
-            // If no sub-items, remove the arrow as it's not needed
-            arrowSpan.remove();
-        }
-      } else {
-        // If no childMenu, also remove the arrow
-        arrowSpan.remove();
-      }
+      //   if (subListUl.childNodes.length > 0) {
+      //     parentLi.appendChild(subListUl);
+      //   } else {
+      //       // If no sub-items, remove the arrow as it's not needed
+      //       arrowSpan.remove();
+      //   }
+      // } else {
+      //   // If no childMenu, also remove the arrow
+      //   arrowSpan.remove();
+      // }
 
 
       this.elements.optionsList.appendChild(parentLi);

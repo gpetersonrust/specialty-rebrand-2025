@@ -193,3 +193,53 @@
         background-color: #135e96;
     }
 }
+
+
+
+  .specialty-filter-box {
+        max-width: 500px;
+        margin-bottom: 2rem;
+    }
+
+    .specialty-filter-box input[type="text"] {
+        width: 100%;
+        padding: 8px 10px;
+        border: 1px solid #ccd0d4;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    #specialty-search-results {
+        margin-top: 8px;
+        border: 1px solid #e1e1e1;
+        max-height: 300px;
+        overflow-y: auto;
+        background: #fff;
+        border-radius: 4px;
+    }
+
+    #specialty-search-results .specialty-item {
+        padding: 8px 12px;
+        border-bottom: 1px solid #eee;
+    }
+
+    #specialty-search-results .specialty-item:last-child {
+        border-bottom: none;
+    }
+
+    #specialty-search-results .specialty-item a {
+        text-decoration: none;
+        color: #0073aa;
+        display: block;
+    }
+
+    #specialty-search-results .specialty-item a:hover {
+        background: #f1f1f1;
+        color: #005177;
+    }
+
+    @media (max-width: 600px) {
+        .specialty-filter-box {
+            max-width: 100%;
+        }
+    }

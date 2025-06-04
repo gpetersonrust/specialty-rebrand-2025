@@ -106,7 +106,7 @@ foreach ($active_items_unsorted as $item) {
         </div>
         <div class="sr-selector-column active">
             <h5><?php _e('Active', 'specialty-rebrand'); ?></h5>
-            <div class="sr-items sortable" data-status="active">
+            <div class="sr-items sortable sr-active" data-status="active">
                 <?php foreach ($active_items as $item): ?>
                     <div class="sr-item" data-id="<?php echo esc_attr($item->ID); ?>">
                         <?php echo esc_html($item->post_title); ?>

@@ -37,6 +37,9 @@ class ExpertFilterUI {
   parseURLParams() {
     const urlParams = new URLSearchParams(window.location.search);
     this.filters.specialty = urlParams.get('specialty') || 'all';
+    let pathname = window.location.pathname;
+    console.log({pathname}, 'pathname from expert filter UI');
+    
 
    
     
@@ -92,6 +95,7 @@ class ExpertFilterUI {
     const params = new URLSearchParams();
     if (this.filters.specialty && this.filters.specialty !== 'all') {
       params.set('specialty', this.filters.specialty);
+      console.log('Not all specialty, setting URL param:', this.filters.specialty);
     }
     if (this.filters.location) {
       params.set('location', this.filters.location);

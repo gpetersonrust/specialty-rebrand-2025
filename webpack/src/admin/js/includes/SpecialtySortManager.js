@@ -47,24 +47,27 @@ class SpecialtySortManager {
 }
 
 updateHiddenInputs(evt) {
-    const container = evt.to;
-    const wrapper = container.closest('.sr-selector-container');
+    const containers = [evt.to, evt.from];
 
-    const metaKey = wrapper.dataset.metaKey;
-    const fieldPrefix = wrapper.dataset.fieldPrefix; // ✅ use the newly added attribute
+    containers.forEach(container => {
+        const wrapper = container.closest('.sr-selector-container');
+        const metaKey = wrapper.dataset.metaKey;
+        const fieldPrefix = wrapper.dataset.fieldPrefix;
 
-    // Remove any old hidden inputs
-    const inputs = container.querySelectorAll('input[type="hidden"]');
-    inputs.forEach(input => input.remove());
+        // Remove existing hidden inputs
+        container.querySelectorAll('input[type="hidden"]').forEach(input => input.remove());
 
-    // Rebuild inputs based on new DOM order
-    container.querySelectorAll('.sr-item').forEach(item => {
-        const id = item.dataset.id;
-        const hiddenInput = document.createElement('input');
-        hiddenInput.type = 'hidden';
-        hiddenInput.name = `${fieldPrefix}[${metaKey}][]`; // ✅ correct naming structure
-        hiddenInput.value = id;
-        item.appendChild(hiddenInput);
+        // Rebuild inputs ONLY for the "active" container (which should have the correct items)
+        if (container.classList.contains('sr-active')) {
+            container.querySelectorAll('.sr-item').forEach(item => {
+                const id = item.dataset.id;
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = `${fieldPrefix}[${metaKey}][]`;
+                hiddenInput.value = id;
+                item.appendChild(hiddenInput);
+            });
+        }
     });
 }
 

@@ -31,7 +31,7 @@ class Specialty_Rebrand_Field_Manager {
                 'type'   => 'selector-view',
                 'name'   => 'specialty_physicians',
                 'label'  => __('Physician Assignments', 'specialty-rebrand'),
-                'views'  => SPECIALTY_REBRAND_DIR . 'views/selector-view.php',
+                'views'  => SPECIALTY_REBRAND_DIR . 'views/fields/selector.php',
                 'tier_definition' => [
                     'tier'            => ['slug' => 'physicians', 'label' => 'Physicians'],
                     'label'           => 'Physicians',
@@ -48,7 +48,7 @@ class Specialty_Rebrand_Field_Manager {
                 'type'   => 'selector-view',
                 'name'   => 'specialty_subspecialties',
                 'label'  => __('Sub Specialty Assignments', 'specialty-rebrand'),
-                'views'  => SPECIALTY_REBRAND_DIR . 'views/selector-view.php',
+                'views'  => SPECIALTY_REBRAND_DIR . 'views/fields/selector.php',
                 'tier_definition' => [
                     'tier'            => ['slug' => 'subspecialties', 'label' => 'Sub Specialties'],
                     'label'           => 'Sub Specialties',
@@ -61,12 +61,12 @@ class Specialty_Rebrand_Field_Manager {
             ],
             [
                 'tab'    => 'visibility',
-                'tab_label' => __('Visibility Settings', 'specialty-rebrand'),
-                'type'   => 'checkbox',
-                'name'   => 'specialty_is_visible',
-                'label'  => __('Show this specialty publicly', 'specialty-rebrand'),
-                'value'  => get_post_meta($post_id, '_specialty_is_visible', true) ?: true,
-                'id'     => 'specialty_is_visible',
+                'tab_label' => __('Navigation Settings', 'specialty-rebrand'),
+                'type'   => 'checkbox', 
+                'name'   => 'specialty_show_in_breadcrumb',
+                'label'  => __('Show in breadcrumb navigation', 'specialty-rebrand'),
+                'value'  => get_post_meta($post_id, '_specialty_show_in_breadcrumb', true) ?? false,
+                'id'     => 'specialty_show_in_breadcrumb',
                 'views'  => SPECIALTY_REBRAND_DIR . 'views/fields/checkbox.php'
             ],
             [
@@ -79,12 +79,12 @@ class Specialty_Rebrand_Field_Manager {
                 'id'     => 'specialty_description',
                 'views'  => SPECIALTY_REBRAND_DIR . 'views/fields/textarea.php'
             ],
-            [
-                'tab'    => 'url-mapping',
-                'tab_label' => __('URL Mapping Labels', 'specialty-rebrand'),
-                'type'   => 'view',
-                'views'  => SPECIALTY_REBRAND_DIR . 'views/url-mapping.php'
-            ]
+            // [
+            //     'tab'    => 'url-mapping',
+            //     'tab_label' => __('URL Mapping Labels', 'specialty-rebrand'),
+            //     'type'   => 'view',
+            //     'views'  => SPECIALTY_REBRAND_DIR . 'views/url-mapping.php'
+            // ]
         ];
     }
 
@@ -134,52 +134,101 @@ class Specialty_Rebrand_Field_Manager {
     }
 
     /**
-     * Save all fields from a POST request
+     * Save metabox data
      *
-     * @param int   $post_id
-     * @param array $fields
-     * @param array $request
+     * @param int $post_id The ID of the post being saved
      */
-    public static function save_fields($post_id, $fields, $request) {
-        foreach ($fields as $field) {
-            $type = $field['type'] ?? 'text';
-            $name = $field['name'] ?? '';
-            if (!$name) continue;
 
-            switch ($type) {
-                case 'text':
-                    $value = sanitize_text_field($request[$name] ?? '');
-                    update_post_meta($post_id, "_{$name}", $value);
-                    break;
+    /**
+     * Helper method to save tier orders
+     *
+     * @param int $post_id The post ID
+     * @param string $field_prefix The prefix for the POST field
+     */
+    public static function save_tier_order($post_id, $field_prefix, $meta_key) {
+        // Save POST data to JSON for debugging/logging
 
-                case 'textarea':
-                    $value = sanitize_textarea_field($request[$name] ?? '');
-                    update_post_meta($post_id, "_{$name}", $value);
-                    break;
+        $post_data = [
+            'timestamp' => current_time('mysql'),
+            'post_id' => $post_id,
+            'field_prefix' => $field_prefix,
+            'post_data' => $_POST[$field_prefix] ?? [],
+            'meta_key' => $meta_key
+            , 'ids' => $_POST[$field_prefix][$meta_key] ?? []
+        ];
 
-                case 'checkbox':
-                    $value = isset($request[$name]) ? (bool) $request[$name] : false;
-                    update_post_meta($post_id, "_{$name}", $value);
-                    break;
-
-                case 'selector-view':
-                    if (!empty($field['tier_definition']['field_prefix'])) {
-                        $prefix = $field['tier_definition']['field_prefix'];
-                        if (isset($request[$prefix])) {
-                            foreach ($request[$prefix] as $meta_key => $ids) {
-                                if (is_array($ids)) {
-                                    $ids = array_map('absint', $ids);
-                                    update_post_meta($post_id, $meta_key, $ids);
-                                }
-                            }
-                        }
-                    }
-                    break;
-
-                case 'view':
-                    // Let custom views manage their own save logic
-                    break;
-            }
+        $ids = isset($_POST[$field_prefix][$meta_key]) ? array_map('absint', $_POST[$field_prefix][$meta_key]) : [];
+        file_put_contents(SPECIALTY_REBRAND_DIR . 'data/post_data.json', json_encode($post_data, JSON_PRETTY_PRINT));
+        if (isset($_POST[$field_prefix])) {
+           
+            update_post_meta($post_id, $meta_key, $ids);
         }
+    }
+
+    /**
+     * Helper method to save URL mappings
+     * 
+     * @param int $post_id The post ID
+     */
+    public static function save_url_mappings($post_id) {
+        if (!isset($_POST['specialty_url_mappings'])) {
+            return;
+        }
+
+        $mappings = array_map(function($mapping) {
+            return array(
+                'url' => esc_url_raw($mapping['url']),
+                'label' => sanitize_text_field($mapping['label'])
+            );
+        }, $_POST['specialty_url_mappings']);
+
+        update_post_meta($post_id, '_specialty_url_mappings', $mappings);
+    }
+
+    /**
+     * Helper method to save meta fields with proper sanitization
+     *
+     * @param int $post_id The post ID
+     * @param string $field_name The field name without prefix
+     * @param string $type The field type (text, textarea, or choice)
+     */
+    public static function save_meta_field($post_id, $field_name, $type = 'text') {
+        $meta_key = '_specialty_' . $field_name;
+        $post_key = 'specialty_' . $field_name;
+
+         
+
+        $value = $_POST[$post_key];
+
+        switch ($type) {
+            case 'textarea':
+
+                $sanitized_value = sanitize_textarea_field($value);
+                break;
+            case 'choice':
+                $sanitized_value = (bool) $value;
+                break;
+            case 'checkbox':
+                // Debug checkbox values
+                $debug_data = [
+                    'timestamp' => current_time('mysql'),
+                    'post_id' => $post_id,
+                    'field_name' => $field_name,
+                    'raw_value' => $value,
+                    'is_empty_string' => $value === ''
+                ];
+                $value = ($value === '') ? 0 : $value;
+                 
+                $sanitized_value = !empty($value);
+                break;
+            case 'text':
+            default:
+                $sanitized_value = sanitize_text_field($value);
+                break;
+        }
+
+         
+
+        update_post_meta($post_id, $meta_key, $sanitized_value);
     }
 }

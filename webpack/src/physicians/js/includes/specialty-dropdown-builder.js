@@ -25,6 +25,19 @@ class SpecialtyDropdown {
       mainOptions: null, // Will include only .specialty-option elements
     };
 
+    let pathname = window.location.pathname;
+    const hasExperts = pathname.includes('experts');
+    if (hasExperts) {
+      this.initialSpecialty = pathname.split('/').reverse()[1]; // Get the last segment of the URL
+      this.initialSpecialty = this.initialSpecialty === 'physicians' ? null : this.initialSpecialty;
+      let convertedHumanReadbleText = this.initialSpecialty.replace(/-/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+
+       console.log(this.initialSpecialty, 'initial specialty from pathname');
+       
+      
+    }
+  
+    
  
 
     if (!this.elements.trigger || !this.elements.menu || !this.elements.optionsList) {
@@ -115,26 +128,28 @@ class SpecialtyDropdown {
       const parentLi = document.createElement('li');
       parentLi.className = `specialty-option ${parentSlug}`;
       parentLi.setAttribute('data-filter', `.${parentSlug}`);
+    
 
-      const labelWrapper = document.createElement('div');
-      labelWrapper.className = 'option-label';
+    const labelWrapper = document.createElement('div');
+    labelWrapper.className = 'option-label';
 
-      const labelSpan = document.createElement('span');
-      labelSpan.className = 'option-text';
-      labelSpan.textContent = parentLabel;
+    const linkElem = document.createElement('a');
+    linkElem.href = parentHref;
+    linkElem.textContent = parentLabel;
+    linkElem.className = 'option-text';
 
-      const arrowSpan = document.createElement('span');
-      arrowSpan.className = 'sub-arrow';
-      arrowSpan.innerHTML = `
-        <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 52 52">
-          <path d="M8.3,14h35.4c1,0,1.7,1.3,0.9,2.2L27.3,37.4c-0.6,0.8-1.9,0.8-2.5,0L7.3,16.2C6.6,15.3,7.2,14,8.3,14z"/>
-        </svg>`;
+    const arrowSpan = document.createElement('span');
+    arrowSpan.className = 'sub-arrow';
+    arrowSpan.innerHTML = `
+      <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 52 52">
+        <path d="M8.3,14h35.4c1,0,1.7,1.3,0.9,2.2L27.3,37.4c-0.6,0.8-1.9,0.8-2.5,0L7.3,16.2C6.6,15.3,7.2,14,8.3,14z"/>
+      </svg>`;
 
-      labelWrapper.appendChild(labelSpan);
-      // labelWrapper.appendChild(arrowSpan);
-      parentLi.appendChild(labelWrapper);
+    labelWrapper.appendChild(linkElem);
+    // labelWrapper.appendChild(arrowSpan);
+    parentLi.appendChild(labelWrapper);
 
-      this.labels[parentSlug] = parentLabel; // Store the label for later use
+    this.labels[parentSlug] = parentLabel; // Store the label for later use
 
       // const childMenu = parentItem.querySelector(':scope > .sub-menu');
       // if (childMenu) {

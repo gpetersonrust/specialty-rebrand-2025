@@ -116,5 +116,8 @@ function run_specialty_rebrand() {
 	$plugin = new Specialty_Rebrand();
 	$plugin->run();
 
+
+
+
 }
 run_specialty_rebrand();

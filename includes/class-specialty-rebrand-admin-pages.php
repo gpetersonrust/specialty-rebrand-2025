@@ -1,132 +1,125 @@
 <?php
-class Specialty_Rebrand_Admin_Pages {
 
+class Specialty_Rebrand_Admin_Pages {
     /**
      * Hook into WordPress using the plugin's loader class.
      *
      * @param Specialty_Rebrand_Loader $loader The loader instance for managing hooks.
      */
     public function define_hooks($loader) {
-        // Use 'init' to create the page early in the WP lifecycle
-        $loader->add_action('init', $this, 'register_admin_pages');
-
-        
+        $loader->add_action('admin_menu', $this, 'register_admin_pages');
+        $loader->add_action('admin_post_export_specialty_structure', $this, 'handle_export_specialty_structure_action');
     }
 
     /**
-     * Create the /specialties-admin page programmatically if it doesn't already exist.
-     * This ensures the route exists without requiring manual page creation.
+     * Register admin menu pages.
      */
     public function register_admin_pages() {
-
-       add_menu_page(
-            __('Specialties Admin', 'specialty-rebrand'), // Page title
-            __('Specialties Admin', 'specialty-rebrand'), // Menu title
-            'manage_options', // Capability required to access this page
-            'specialties-admin', // Menu slug
-            [$this,  'handle_specialty_import'], // Callback function to render the page
-            'dashicons-admin-generic', // Icon for the menu item
-            5 // Position in the menu
+        add_menu_page(
+            __('Specialties Admin', 'specialty-rebrand'),
+            __('Specialties Admin', 'specialty-rebrand'),
+            'manage_options',
+            'specialties-admin',
+            [$this,  'render_specialties_admin_page'],
+            'dashicons-admin-generic',
+            5
         );
-         
+
         add_submenu_page(
-            'specialties-admin', // Parent menu slug
-            __('Specialty Posts', 'specialty-rebrand'), // Page title
-            __('Specialty Posts', 'specialty-rebrand'), // Menu title
-            'manage_options', // Capability
-            'edit.php?post_type=specialty' // Menu slug/link
+            'specialties-admin',
+            __('Specialty Posts', 'specialty-rebrand'),
+            __('Specialty Posts', 'specialty-rebrand'),
+            'manage_options',
+            'edit.php?post_type=specialty'
         );
     }
 
-    
     /**
-     * Handle the specialty structure import form and processing.
-     * Displays the import form and processes the JSON file upload.
+     * Renders the admin page content (forms) and handles file upload and dry run input.
      */
-    public function handle_specialty_import() {
-        ?>
-        <h2>Import Specialty Structure</h2>
-        <form method="post" enctype="multipart/form-data">
-            <?php wp_nonce_field('specialty_json_import', 'specialty_json_nonce'); ?>
-            <input type="file" name="specialty_json" accept=".json" required>
-            <input type="submit" class="button button-primary" name="submit_specialty_json" value="Import">
-        </form>
-        <?php
-
+    public function render_specialties_admin_page() {
         if (isset($_POST['submit_specialty_json']) && current_user_can('manage_options')) {
             if (!isset($_POST['specialty_json_nonce']) || !wp_verify_nonce($_POST['specialty_json_nonce'], 'specialty_json_import')) {
-                echo '<div class="error"><p>Invalid nonce.</p></div>';
-                return;
-            }
+                echo '<div class="error"><p>Invalid nonce for import.</p></div>';
+            } else {
+                $file = $_FILES['specialty_json'];
+                if ($file['error'] === UPLOAD_ERR_OK) {
+                    $json_content = file_get_contents($file['tmp_name']);
+                    $data = json_decode($json_content, true);
+                    if (is_array($data)) {
+                        $dry_run = isset($_POST['dry_run']) && $_POST['dry_run'] === '1';
+                        $result = $this->handle_import_specialty_structure($json_content, $dry_run);
 
-            $file = $_FILES['specialty_json'];
-            if ($file['error'] === UPLOAD_ERR_OK) {
-                $json = file_get_contents($file['tmp_name']);
-                $data = json_decode($json, true);
-                if (is_array($data)) {
-                    $this->specialty_import_structure($data);
-                    echo '<div class="updated"><p>Import complete.</p></div>';
+                        if ($dry_run && is_array($result)) {
+                            echo '<div class="notice notice-info"><p><strong>Dry Run Results:</strong></p><pre>' . esc_html(print_r($result, true)) . '</pre></div>';
+                        } elseif ($result === true) {
+                            echo '<div class="updated"><p>Import complete.</p></div>';
+                        } else {
+                            echo '<div class="error"><p>Import encountered issues.</p></div>';
+                        }
+                    } else {
+                        echo '<div class="error"><p>Invalid JSON format.</p></div>';
+                    }
                 } else {
-                    echo '<div class="error"><p>Invalid JSON format.</p></div>';
+                    echo '<div class="error"><p>File upload error: ' . esc_html($file['error']) . '</p></div>';
                 }
             }
         }
+        ?>
+        <div class="wrap">
+            <h1><?php esc_html_e('Specialty Structure Management', 'specialty-rebrand'); ?></h1>
+
+            <h2><?php esc_html_e('Import Specialty Structure', 'specialty-rebrand'); ?></h2>
+            <form method="post" enctype="multipart/form-data">
+                <?php wp_nonce_field('specialty_json_import', 'specialty_json_nonce'); ?>
+                <input type="file" name="specialty_json" accept=".json" required>
+                <p>
+                    <label>
+                        <input type="checkbox" name="dry_run" value="1">
+                        <?php esc_html_e('Dry run (simulate import without saving)', 'specialty-rebrand'); ?>
+                    </label>
+                </p>
+                <input type="submit" class="button button-primary" name="submit_specialty_json" value="<?php esc_attr_e('Import', 'specialty-rebrand'); ?>">
+            </form>
+
+            <h2><?php esc_html_e('Export Specialty Structure', 'specialty-rebrand'); ?></h2>
+            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                <input type="hidden" name="action" value="export_specialty_structure">
+                <?php wp_nonce_field('specialty_json_export_action', 'specialty_json_export_nonce'); ?>
+                <input type="submit" class="button button-secondary" name="export_specialty_json_button" value="<?php esc_attr_e('Export', 'specialty-rebrand'); ?>">
+            </form>
+        </div>
+        <?php
     }
 
-
-
-    function specialty_import_structure(array $data) {
-    foreach ($data as $specialty_name => $tiers) {
-        // Check if top-level specialty post exists
-        $parent_post = get_page_by_title($specialty_name, OBJECT, 'specialty');
-        $prefix_name = $specialty_name . ' - ';
-        if (!$parent_post) {
-            $parent_id = wp_insert_post([
-                'post_type' => 'specialty',
-                'post_status' => 'publish',
-                'post_title' => $specialty_name,
-            ]);
-        } else {
-            $parent_id = $parent_post->ID;
+    /**
+     * Handles the actual export logic when admin-post.php is called.
+     */
+    public function handle_export_specialty_structure_action() {
+        if (!isset($_POST['specialty_json_export_nonce']) || !wp_verify_nonce($_POST['specialty_json_export_nonce'], 'specialty_json_export_action')) {
+            wp_die('Invalid nonce for export.', 'Security Check', ['response' => 403]);
         }
 
-        foreach ($tiers as $tier_name => $physician_ids) {
-            // Check if tier already exists (by title & parent match)
-            $tier_post = get_page_by_title($prefix_name . $tier_name, OBJECT, 'specialty');
-            if (!$tier_post) {
-                $tier_id = wp_insert_post([
-                    'post_type' => 'specialty',
-                    'post_status' => 'publish',
-                    'post_title' =>  $prefix_name . $tier_name,
-                    'post_parent' => $parent_id
-                ]);
-            } else {
-                $tier_id = $tier_post->ID;
-                // Update parent in case structure changed
-                wp_update_post([
-                    'ID' => $tier_id,
-                    'post_parent' => $parent_id
-                ]);
-            }
-
-            // Validate physician IDs
-            $valid_physicians = array_filter($physician_ids, function ($pid) {
-                return get_post_type((int) $pid) === 'physician';
-            });
-
-            // Save relationship via known meta key
-            $meta_key = '_specialty_tier_order_physicians';
-            update_post_meta($tier_id, $meta_key, array_map('absint', $valid_physicians));
-
-            // Get existing subspecialties from parent and append this tier
-            $parent_subspecialties = get_post_meta($parent_id, '_specialty_tier_order_subspecialties', true);
-            $parent_subspecialties = is_array($parent_subspecialties) ? $parent_subspecialties : array();
-            if (!in_array($tier_id, $parent_subspecialties)) {
-                $parent_subspecialties[] = $tier_id;
-                update_post_meta($parent_id, '_specialty_tier_order_subspecialties', array_map('absint', $parent_subspecialties));
-            }
+        if (!current_user_can('manage_options')) {
+            wp_die('You do not have permission to export this data.', 'Permission Denied', ['response' => 403]);
         }
+
+        require_once SPECIALTY_REBRAND_DIR . 'utils/koc-orhto-physician-exporter.php';
+        $exporter = new Physician_Exporter();
+        $exporter->export_and_download();
+        exit;
+    }
+
+    /**
+     * Handles specialty import from JSON string and returns result or dry run log.
+     *
+     * @param string $json_content Raw JSON string from upload.
+     * @param bool $is_dry_run Whether to simulate the import only.
+     * @return true|array Returns true on success, or array of dry run log entries.
+     */
+    public function handle_import_specialty_structure($json_content, $is_dry_run = false) {
+        require_once SPECIALTY_REBRAND_DIR . 'utils/class-physician-importer.php';
+        $importer = new Physician_Importer();
+        return $importer->import_from_json($json_content, $is_dry_run);
     }
 }
-}
-?>

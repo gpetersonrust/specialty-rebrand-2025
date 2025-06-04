@@ -1,5 +1,6 @@
 <?php
-$mappings = get_post_meta($post->ID, '_specialty_url_mappings', true);
+$ID = get_the_ID();
+$mappings = get_post_meta($ID, '_specialty_url_mappings', true);
 if (!is_array($mappings)) {
     $mappings = [];
 }

@@ -1,5 +1,4 @@
 <?php
-
  
  
 
@@ -107,6 +106,8 @@ id="expert-grid-container"
                 <div class="expert-grid">
                     <?php foreach ($subspecialty['physicians'] as $physician) : ?>
                         <?php
+                        $physician_helper = new PhysicianHelper();
+                        $hide_class = $physician_helper->should_hide_physician($physician);
                         // Load physician card template
                         include SPECIALTY_REBRAND_DIR . 'views/shortcodes/components/physician-sub-specialty-card.php';
                         ?>

@@ -30,9 +30,16 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+
 // Define plugin directory path and URL
 define( 'SPECIALTY_REBRAND_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SPECIALTY_REBRAND_URL', plugin_dir_url( __FILE__ ) );
+
+require_once SPECIALTY_REBRAND_DIR . 'utils/koc-ortho-physician-helper.php';
+
+
+
+
 
 /**
  * Currently plugin version.

@@ -219,6 +219,9 @@ class KOC_ExpertFilterUI {
    * redirect the user to the appropriate page and carry over current filters.
    */
   redirectWithFilters() {
+    if (!this.specialtyDropdown) return;
+    // Show loading spinner before redirect
+    this.createLoadingSpinner();
     const baseUrl = this.specialtyDropdown.value.replace(/\/+$/, '');
     const currentBase = window.location.href.split('?')[0].replace(/\/+$/, '');
     const params = new URLSearchParams();
@@ -233,8 +236,73 @@ class KOC_ExpertFilterUI {
 
     const fullUrl = `${baseUrl}?${params.toString()}`;
     if (baseUrl !== currentBase) {
+      setTimeout(() => {
       window.location.href = fullUrl;
+      }, 1000);
     }
+  }
+
+  /**
+   * Creates and manages a loading spinner with animated text
+   */
+  createLoadingSpinner() {
+    console.log('Creating loading spinner...');
+    const spinner = document.createElement('div');
+    spinner.innerHTML = `
+      <style>
+        .koc-spinner-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(255, 255, 255, 0.9);
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          z-index: 9999;
+        }
+        .koc-spinner {
+          width: 50px;
+          height: 50px;
+          border: 4px solid #236194;
+          border-top: 4px solid #56a554;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+        .koc-spinner-text {
+          margin-top: 20px;
+          color: #717171;
+          font-size: 18px;
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        @keyframes dots {
+          0% { content: '.'; }
+          33% { content: '..'; }
+          66% { content: '...'; }
+        }
+        .koc-spinner-dots::after {
+          content: '.';
+          animation: dots 1.5s steps(1) infinite;
+        }
+      </style>
+      <div class="koc-spinner-overlay">
+        <div class="koc-spinner"></div>
+        <div class="koc-spinner-text">
+          Physicians Loading<span class="koc-spinner-dots"></span>
+        </div>
+      </div>
+    `;
+    const container = document.querySelector('#expert-grid-container');
+    if (container) {
+    
+      container.appendChild(spinner);
+    }
+    return spinner;
   }
 }
 

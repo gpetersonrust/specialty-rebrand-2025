@@ -22,6 +22,9 @@ if ($menu_items) {
   }
 }
 $location = $_GET['expert_location'] ?? '';
+$location = strtolower(str_replace(' ', '-', $location));
+
+ 
 $name = $_GET['expert_name'] ?? '';
 $current_uri = $_SERVER['REQUEST_URI'];
 
@@ -65,10 +68,10 @@ $current_slug = strpos(end($parts), '?') !== false ? prev($parts) : end($parts);
       <option class="button" data-filter=".harriman" <?php echo strtolower($location) === 'harriman' ? 'selected' : ''; ?>>Harriman</option>
       <option class="button" data-filter=".lakeway" <?php echo strtolower($location) === 'lakeway' ? 'selected' : ''; ?>>Lakeway</option>
       <option class="button" data-filter=".maryville" <?php echo strtolower($location) === 'maryville' ? 'selected' : ''; ?>>Maryville</option>
-      <option class="button" data-filter=".oak_ridge" <?php echo strtolower($location) === 'oak_ridge' ? 'selected' : ''; ?>>Oak Ridge</option>
+      <option class="button" data-filter=".oak_ridge" <?php echo strtolower($location) === 'oak-ridge' ? 'selected' : ''; ?>>Oak Ridge</option>
       <option class="button" data-filter=".powell" <?php echo strtolower($location) === 'powell' ? 'selected' : ''; ?>>Powell</option>
       <option class="button" data-filter=".sevierville" <?php echo strtolower($location) === 'sevierville' ? 'selected' : ''; ?>>Sevierville</option>
-      <option class="button" data-filter=".turkey_creek" <?php echo strtolower($location) === 'turkey_creek' ? 'selected' : ''; ?>>Turkey Creek</option>
+      <option class="button" data-filter=".turkey_creek" <?php echo strtolower($location) === 'turkey-creek' ? 'selected' : ''; ?>>Turkey Creek</option>
       <option class="button" data-filter=".university" <?php echo strtolower($location) === 'university' ? 'selected' : ''; ?>>University</option>
       <option class="button" data-filter=".weisgarber" <?php echo strtolower($location) === 'weisgarber' ? 'selected' : ''; ?>>Weisgarber</option>
       <option class="button" data-filter=".west" <?php echo strtolower($location) === 'west' ? 'selected' : ''; ?>>West</option>

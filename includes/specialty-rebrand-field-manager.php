@@ -63,10 +63,10 @@ class Specialty_Rebrand_Field_Manager {
                 'tab'    => 'visibility',
                 'tab_label' => __('Navigation Settings', 'specialty-rebrand'),
                 'type'   => 'checkbox', 
-                'name'   => 'specialty_show_in_breadcrumb',
-                'label'  => __('Show in breadcrumb navigation', 'specialty-rebrand'),
-                'value'  => get_post_meta($post_id, '_specialty_show_in_breadcrumb', true) ?? false,
-                'id'     => 'specialty_show_in_breadcrumb',
+                'name'   => 'specialty_disable_parent',
+                'label'  => __('Disable parent text', 'specialty-rebrand'),
+                'value'  => get_post_meta($post_id, '_specialty_disable_parent', true) ?? false,
+                'id'     => 'specialty_disable_parent',
                 'views'  => SPECIALTY_REBRAND_DIR . 'views/fields/checkbox.php'
             ],
             [
@@ -79,13 +79,37 @@ class Specialty_Rebrand_Field_Manager {
                 'id'     => 'specialty_description',
                 'views'  => SPECIALTY_REBRAND_DIR . 'views/fields/textarea.php'
             ],
-            // [
-            //     'tab'    => 'url-mapping',
-            //     'tab_label' => __('URL Mapping Labels', 'specialty-rebrand'),
-            //     'type'   => 'view',
-            //     'views'  => SPECIALTY_REBRAND_DIR . 'views/url-mapping.php'
-            // ]
+            [
+                'tab'    => 'button-label',
+                'tab_label' => __('Button Label', 'specialty-rebrand'),
+                'type'   => 'text',
+                'name'   => 'specialty_button_label', 
+                'label'  => __('Button Label', 'specialty-rebrand'),
+                'value'  => get_post_meta($post_id, '_specialty_button_label', true),
+                'id'     => 'specialty_button_label',
+                'views'  => SPECIALTY_REBRAND_DIR . 'views/fields/text.php'
+            ]
         ];
+    }
+
+
+    /**
+     * Get field types for text, textarea, and checkbox fields
+     *
+     * @return array
+     */
+    public static function get_simple_field_types() {
+        $fields = self::get_fields(get_the_ID());
+        $simple_fields = [];
+        
+        foreach ($fields as $field) {
+            if (in_array($field['type'], ['text', 'textarea', 'checkbox'])) {
+                $field_name = str_replace('specialty_', '', $field['name']);
+                $simple_fields[$field_name] = $field['type'];
+            }
+        }
+        
+        return $simple_fields;
     }
 
     /**
@@ -230,5 +254,29 @@ class Specialty_Rebrand_Field_Manager {
          
 
         update_post_meta($post_id, $meta_key, $sanitized_value);
+    }
+
+
+
+    /**
+     * Save all specialty fields
+     *
+     * @param int $post_id The ID of the post being saved
+     */
+    public static function save_fields($post_id) {
+        
+        $fields = self::get_simple_field_types();
+        foreach ($fields as $field => $type) {
+            self::save_meta_field($post_id, $field, $type);
+        }
+
+        $tier_orders = [
+            'specialty_subspecialties' => '_specialty_tier_order_subspecialties',
+            'specialty_physicians' => '_specialty_tier_order_physicians'
+        ];
+
+        foreach ($tier_orders as $source => $target) {
+            self::save_tier_order($post_id, $source, $target);
+        }
     }
 }

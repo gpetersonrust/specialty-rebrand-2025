@@ -113,29 +113,16 @@ class Specialty_Rebrand_Specialties_Editor_Page {
             wp_die(__('Invalid post ID', 'specialty-rebrand'));
         }
 
-        // Save meta fields
-        $fields = [
-            'display_label' => 'text',
-            'description' => 'textarea',
-            'show_in_breadcrumb' => 'choice'
-        ];
+        // Save all specialty fields
+        Specialty_Rebrand_Field_Manager::save_fields($post_id);
 
-        foreach ($fields as $field => $type) {
-            Specialty_Rebrand_Field_Manager::save_meta_field($post_id, $field, $type);
-        }
-
-        // Save tier assignments
-        $tier_orders = [
-            'specialty_subspecialties' => '_specialty_tier_order_subspecialties',
-            'specialty_physicians' => '_specialty_tier_order_physicians'
-        ];
-
-        foreach ($tier_orders as $prefix => $meta_key) {
-            Specialty_Rebrand_Field_Manager::save_tier_order($post_id, $prefix, $meta_key);
-        }
-
-        // Save URL mappings
-        Specialty_Rebrand_Field_Manager::save_url_mappings($post_id);
+        // Show success notice
+        add_settings_error(
+            'specialty_editor',
+            'specialty_updated',
+            __('Specialty updated successfully.', 'specialty-rebrand'),
+            'updated'
+        );
 
         wp_redirect(add_query_arg(['page' => 'specialties-editor', 'post_id' => $post_id, 'saved' => 1], admin_url('admin.php')));
         exit;

@@ -147,30 +147,10 @@ class Specialty_Rebrand_Specialty_CPT {
             return;
         }
 
-        // Define fields to save with their types
-        $fields = [
-            'display_label' => 'text',
-            'description' => 'textarea',
-            'show_in_breadcrumb' => 'checkbox'
-        ];
+    // Use the Field Manager to save all fields
+    Specialty_Rebrand_Field_Manager::save_fields($post_id);
 
-        // Save meta fields
-        foreach ($fields as $field => $type) {
-            Specialty_Rebrand_Field_Manager::save_meta_field($post_id, $field, $type);
-        }
-
-        // Save tier orders using an array
-        $tier_orders = [
-            'specialty_subspecialties' => '_specialty_tier_order_subspecialties',
-            'specialty_physicians' => '_specialty_tier_order_physicians'
-        ];
-
-        foreach ($tier_orders as $source => $target) {
-            Specialty_Rebrand_Field_Manager::save_tier_order($post_id, $source, $target);
-        }
-
-        // Save URL mappings
-        Specialty_Rebrand_Field_Manager::save_url_mappings($post_id);
+      
 
         
          

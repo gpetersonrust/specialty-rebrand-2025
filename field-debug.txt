@@ -1,0 +1,7 @@
+Array
+(
+    [display_label] => text
+    [show_in_breadcrumb] => checkbox
+    [description] => textarea
+    [button_label] => text
+)

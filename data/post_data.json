@@ -1,0 +1,30 @@
+{
+    "timestamp": "2025-06-20 11:37:06",
+    "post_id": 7680,
+    "field_prefix": "specialty_physicians",
+    "post_data": {
+        "_specialty_tier_order_physicians": [
+            "6702",
+            "6696",
+            "6592",
+            "6598",
+            "6656",
+            "6624",
+            "6674",
+            "6668",
+            "6658"
+        ]
+    },
+    "meta_key": "_specialty_tier_order_physicians",
+    "ids": [
+        "6702",
+        "6696",
+        "6592",
+        "6598",
+        "6656",
+        "6624",
+        "6674",
+        "6668",
+        "6658"
+    ]
+}

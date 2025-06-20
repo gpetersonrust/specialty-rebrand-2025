@@ -40,24 +40,65 @@
     gap: 20px;
 }
 
-
-button.subspecialty-filter-button.active, button.subspecialty-filter-button:hover {
-    color: #56a554;
-}
-button.subspecialty-filter-button {
-    color: #236194;
-    font-size: 18px;
-    min-width: 15%;
  
-    transition: all .3s linear;
-    border-bottom: 1px solid;
-        font-weight: 600;
-        padding-bottom: 4px;
-
-}
 
 
  
 .hidden{
   display: none !important;
+}
+
+
+
+button.subspecialty-filter-button {
+    background: #d4d4d4;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all .3s linear;
+    padding: 6px 20px;
+    border-radius: 5px;
+}
+
+button.subspecialty-filter-button:hover, button.subspecialty-filter-button.active {
+    background: #56a554;
+    color: #fff;
+}
+
+.subspecialty-filters {
+    display: flex;
+    gap: 6px;
+    margin: 24px 0 40px;
+}
+
+
+
+.expert-grid, .expert-non-grid, #offering-grid {
+  flex-flow: row wrap !important;
+  justify-content: flex-start !important;
+  gap: 12px !important;
+  @apply grid-cols-1 sm:grid-cols-2 md:grid-cols-3  lg:grid-cols-4  xl:grid-cols-5;
+}
+.subspecialty-section.subtier {
+
+.expert-grid {
+ 
+  gap: 12px !important;
+  @apply grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7;
+  
+
+
+
+}
+
+  .expert-section-heading {
+ 
+    @apply md:text-lg text-xl !important;
+   
+ 
+} 
+
+
+.expert-grid-title, .expert-non-grid-title {
+@apply md:text-[12px] text-base !important;
+}
 }

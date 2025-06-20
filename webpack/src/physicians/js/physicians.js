@@ -64,21 +64,23 @@ class KOC_ExpertFilterUI {
     if (this.sections.length > 0) {
       // Multiple subspecialty sections case
       this.subSpecialtyCards = Array.from(this.sections).map(section => ({
-      id: section.id,
-      type: section.dataset.subspecialty,
-      element: section,
-      cards: Array.from(section.querySelectorAll('.expert-card')).map(createCardObject)
+        id: section.id,
+        type: section.dataset.subspecialty,
+        parentTier: section.dataset.parentTier || null, // Store parentTier info
+        element: section,
+        cards: Array.from(section.querySelectorAll('.expert-card')).map(createCardObject)
       }));
     } else {
       // Single expert grid case
       const expertGrid = document.querySelector('.expert-grid');
       if (expertGrid) {
-      this.subSpecialtyCards = [{
-        id: 'expert-grid',
-        type: 'all',
-        element: expertGrid,
-        cards: Array.from(expertGrid.querySelectorAll('.expert-card')).map(createCardObject)
-      }];
+        this.subSpecialtyCards = [{
+          id: 'expert-grid',
+          type: 'all',
+          parentTier: null,
+          element: expertGrid,
+          cards: Array.from(expertGrid.querySelectorAll('.expert-card')).map(createCardObject)
+        }];
       }
     }
   }
@@ -126,18 +128,26 @@ class KOC_ExpertFilterUI {
 
   /**
    * Show/hide subspecialty sections based on the selected filter.
-   * “Sports” filter can include both sports and non-surgical types.
+   * "Sports" filter can include both sports and non-surgical types.
    */
   updateVisibleSections() {
     const selected = this.filters.subspecialty;
 
     this.sections.forEach(section => {
-      const type = section.dataset.subspecialty;
+      const parentTier = section?.dataset?.parentTier || null;
+      const type = parentTier || section.dataset.subspecialty;
       const match = selected === 'all' || type === selected ||
         (selected === 'sports' && type.includes('non-surgical'));
 
       section.classList.toggle(this.hiddenClass, !match);
     });
+  }
+
+  /**
+   * Helper method to determine the effective type for a section (parentTier or type)
+   */
+  getEffectiveType(section) {
+    return section.parentTier || section.type;
   }
 
   /**
@@ -155,9 +165,9 @@ class KOC_ExpertFilterUI {
     const targetSections = this.filters.subspecialty === 'all'
       ? this.subSpecialtyCards
       : this.subSpecialtyCards.filter(sec => {
-          const type = sec.type;
-          return type === this.filters.subspecialty ||
-                 (this.filters.subspecialty === 'sports' && type.includes('non-surgical'));
+          const effectiveType = this.getEffectiveType(sec); // Use helper method
+          return effectiveType === this.filters.subspecialty ||
+                 (this.filters.subspecialty === 'sports' && effectiveType.includes('non-surgical'));
         });
 
     targetSections.forEach(section => {
@@ -237,7 +247,7 @@ class KOC_ExpertFilterUI {
     const fullUrl = `${baseUrl}?${params.toString()}`;
     if (baseUrl !== currentBase) {
       setTimeout(() => {
-      window.location.href = fullUrl;
+        window.location.href = fullUrl;
       }, 1000);
     }
   }
@@ -299,7 +309,6 @@ class KOC_ExpertFilterUI {
     `;
     const container = document.querySelector('#expert-grid-container');
     if (container) {
-    
       container.appendChild(spinner);
     }
     return spinner;
